@@ -3,7 +3,7 @@ pipeline {
   agent any
 
   environment {
-    DOCKERHUB_CREDENTIALS = credentials('dockerhubID')
+    DOCKERHUB_CREDENTIALS = credentials('dockerhub')
     IMAGE_NAME = "1ms24mc049/my_webapp"
   }
 
