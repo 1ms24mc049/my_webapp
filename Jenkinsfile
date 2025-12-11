@@ -12,7 +12,7 @@ pipeline {
       steps {
         git(
           url: 'https://github.com/1ms24mc049/my_webapp',
-          branch: 'main',
+          branch: 'master',
           credentialsId: 'dockerhub'
         )
       }
