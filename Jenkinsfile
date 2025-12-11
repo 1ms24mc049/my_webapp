@@ -2,24 +2,23 @@ pipeline {
   agent any
 
   environment {
-    DOCKERHUB_CREDENTIALS = credentials('dockerhubID')
     IMAGE_NAME = "1ms24mc049/my_webapp"
   }
 
   stages {
     stage('Checkout') {
       steps {
-        git(
-          url: 'https://github.com/1ms24mc049/my_webapp',
-          branch: 'main',
-          credentialsId: 'dockerhubID'
-        )
+        // If this Jenkinsfile lives in the repo, checkout scm is simplest & reliable
+        checkout scm
+        // OR, to use a specific Git credential/URL, use:
+        // git url: 'https://github.com/1ms24mc049/my_webapp.git', branch: 'main', credentialsId: 'github-creds'
       }
     }
 
     stage('Build Docker Image') {
       steps {
         script {
+          // Build the image (requires docker on agent)
           dockerImage = docker.build("${IMAGE_NAME}:latest")
         }
       }
@@ -28,8 +27,9 @@ pipeline {
     stage('Push to Docker Hub') {
       steps {
         script {
-          docker.withRegistry('https://index.docker.io/v1/', 'dockerhubID') {
-            dockerImage.push()
+          // Push the 'latest' tag explicitly using Docker Hub credentials (dockerhubID)
+          docker.withRegistry('https://registry.hub.docker.com', 'dockerhubID') {
+            dockerImage.push('latest')
           }
         }
       }
@@ -39,7 +39,8 @@ pipeline {
   post {
     always {
       echo "Cleaning up workspace..."
-      deleteDir()
+      // Requires Workspace Cleanup Plugin; otherwise use 'script { deleteDir() }'
+      cleanWs()
     }
     success {
       echo 'Pipeline succeeded!'
